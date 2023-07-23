@@ -1,0 +1,25 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: root
+      POSTGRES_DB: test
+  server:
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      ENV_NAME: dev
+      PSQL_HOST: postgres
+      DB_USER: root
+      DB_NAME: test
+      DB_PASS: password
+      PORT: 8080
+    ports:
+      - 8080:8080

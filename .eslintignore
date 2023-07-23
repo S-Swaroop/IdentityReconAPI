@@ -1,0 +1,8 @@
+*.js
+*.cjs
+*.md
+*.json
+!src/**/*.json
+Dockerfile
+docker-compose.yml
+LICENSE
