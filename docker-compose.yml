@@ -8,18 +8,18 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: root
       POSTGRES_DB: test
+
   server:
+    restart: on-failure
     depends_on:
       - postgres
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     environment:
       ENV_NAME: dev
       PSQL_HOST: postgres
-      DB_USER: root
-      DB_NAME: test
-      DB_PASS: password
+      # DB_USER: root
+      # DB_NAME: test
+      # DB_PASS: password
       PORT: 8080
     ports:
       - 8080:8080

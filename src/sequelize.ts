@@ -8,7 +8,7 @@ export const sequelize = new Sequelize({
   username: config.env.DB_USER,
   password: config.env.DB_PASS,
   //   host: "0.0.0.0",
-  //   host: config.env.PSQL_HOST || "localhost",
+  host: config.env.PSQL_HOST || "localhost",
   models: [Contact],
   //   models: [fileMetaData(import.meta).__dirname + "/models"],
   logging: false,

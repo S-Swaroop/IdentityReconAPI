@@ -16,7 +16,7 @@ import {
   CreationOptional,
 } from "sequelize";
 
-@Table
+@Table({ paranoid: true })
 export class Contact extends Model<
   InferAttributes<Contact>,
   InferCreationAttributes<Contact>
@@ -43,27 +43,34 @@ export class Contact extends Model<
   linkPrecedence!: CreationOptional<string>;
 
   static async getConsolidatedContact(primaryContactId: number) {
-    const connectedContacts = await Contact.findAll({
+    const primaryContact = await Contact.findOne({
+      where: { id: primaryContactId },
+    });
+    const secondaryContacts = await Contact.findAll({
       where: Sequelize.or(
         { id: primaryContactId },
         { linkedId: primaryContactId }
       ),
       order: [["createdAt", "ASC"]],
     });
-    const emails = [];
+    const emails = new Set();
     const secondaryContactIds = [];
-    const phoneNumbers = [];
-    for (let i = 0; i < connectedContacts.length; i++) {
-      if (connectedContacts[i].get("linkPrecedence") !== "primary") {
-        secondaryContactIds.push(connectedContacts[i].get("id"));
+    const phoneNumbers = new Set();
+    for (let i = 0; i < secondaryContacts.length; i++) {
+      if (secondaryContacts[i].get("linkPrecedence") !== "primary") {
+        secondaryContactIds.push(secondaryContacts[i].get("id"));
       }
-      emails.push(connectedContacts[i].get("email"));
-      phoneNumbers.push(connectedContacts[i].get("phoneNumber"));
+      emails.add(secondaryContacts[i].get("email"));
+      phoneNumbers.add(secondaryContacts[i].get("phoneNumber"));
     }
+    // since primary contact email and phone should be first
+    emails.delete(primaryContact?.get("email"));
+    phoneNumbers.delete(primaryContact?.get("phoneNumber"));
+
     const consolidatedContact = {
       primaryContactId: primaryContactId,
-      emails: emails,
-      phoneNumbers: phoneNumbers,
+      emails: [primaryContact?.get("email"), ...emails],
+      phoneNumbers: [primaryContact?.get("phoneNumber"), ...phoneNumbers],
       secondaryContactIds: secondaryContactIds,
     };
     return consolidatedContact;

@@ -9,6 +9,20 @@ export const contactsRouter = () =>
       const contacts = await Contact.findAll({});
       res.json({ contacts });
     })
+    .delete(
+      "/identify/:id",
+      async (req: Request, res: Response, next: NextFunction) => {
+        const { id } = req.params;
+        try {
+          await Contact.destroy({
+            where: { id: id },
+          });
+          res.status(201).send("Deleted");
+        } catch (err) {
+          next(err);
+        }
+      }
+    )
     .post(
       "/identify",
       async (req: Request, res: Response, next: NextFunction) => {

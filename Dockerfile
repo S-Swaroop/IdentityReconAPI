@@ -11,7 +11,10 @@ COPY ./src/.env ./src/.env
 
 RUN npm run build
 
+COPY ./src/.env ./dist/.env
+
 EXPOSE 8080
-# CMD [ "TZ='UTC' nodemon" ]
-CMD [ "node", "./dist/index.js" ]
+
+# CMD ["sleep", "infinity"]
+CMD [ "node", "dist/index.js" ]
 
