@@ -31,16 +31,34 @@ export const contactsRouter = () =>
         try {
           let primaryContactId;
           try {
-            // create if new data or just update link state of connected contacts and get primary contact id
-            // all within a transaction
+            /**
+             * create if new data or just update link state
+             * of connected contacts and get primary contact id,
+             * all within a single transaction
+             * also, directly linked secondary contacts can create link
+             * with new primary contacts which aren't linked directly
+             */
             await Contact.sequelize?.transaction(async (trx) => {
+              const connectedSecondaryContacts = await Contact.findAll({
+                where: Sequelize.and(
+                  { linkPrecedence: "secondary" },
+                  Sequelize.or({ email: email }, { phoneNumber: phoneNumber })
+                ),
+                attributes: ["linkedId"],
+              });
+              const connectedPrimaryContactIds = connectedSecondaryContacts
+                .map((cont) => cont.get("linkedId"))
+                .filter((contId) => !!contId);
               const connectedContacts = await Contact.findAll({
                 where: Sequelize.or(
+                  { id: connectedPrimaryContactIds },
+                  { linkedId: connectedPrimaryContactIds },
                   { email: email },
                   { phoneNumber: phoneNumber }
                 ),
                 order: [["createdAt", "ASC"]],
               });
+              //   console.dir({ connectedContacts }, { depth: null });
               let isNewEmail = true;
               let isNewPhoneNumber = true;
               let primaryContact;
@@ -59,7 +77,10 @@ export const contactsRouter = () =>
                   isNewPhoneNumber = false;
                 }
               }
-
+              //   console.dir(
+              //     { primaryContact, secondaryContactIds },
+              //     { depth: null }
+              //   );
               let newContact;
               // create or update primary contact
               if (primaryContact) {
