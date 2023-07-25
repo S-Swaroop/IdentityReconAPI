@@ -19,11 +19,12 @@ app.use(
 app.use(bodyParser.json());
 
 // Contacts Router
-app.use("/", contactsRouter());
+app.use("/api/", contactsRouter());
 
 /**
  * Error logger and responder
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   const { message } = err;
   console.log(message);
@@ -33,7 +34,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       status = 409;
       break;
     case "CONSOLIDATION_ERROR":
-      status = 504;
+      status = 500;
       break;
     default:
       status = 500;

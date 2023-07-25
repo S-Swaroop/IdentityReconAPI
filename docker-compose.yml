@@ -17,9 +17,9 @@ services:
     environment:
       ENV_NAME: dev
       PSQL_HOST: postgres
-      # DB_USER: root
-      # DB_NAME: test
-      # DB_PASS: password
       PORT: 8080
+      DB_USER: root
+      DB_NAME: test
+      DB_PASS: password
     ports:
       - 8080:8080
