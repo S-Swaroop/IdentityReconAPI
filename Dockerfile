@@ -7,11 +7,8 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-COPY ./src/.env ./src/.env
 
 RUN npm run build
-
-COPY ./src/.env ./dist/.env
 
 EXPOSE 8080
 
